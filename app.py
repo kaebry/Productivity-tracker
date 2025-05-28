@@ -33,12 +33,26 @@ def save_data(df):
 def export_to_pdf(df):
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
+    pdf.set_font("Arial", "B", 16)
     pdf.cell(200, 10, txt="Personal Productivity Report", ln=True, align="C")
+    pdf.ln(10)
 
+    pdf.set_font("Arial", "B", 12)
+    pdf.set_fill_color(200, 220, 255)
+    pdf.cell(40, 10, "Date", border=1, fill=True)
+    pdf.cell(50, 10, "Task", border=1, fill=True)
+    pdf.cell(30, 10, "Time (min)", border=1, fill=True)
+    pdf.cell(30, 10, "Mood", border=1, fill=True)
+    pdf.cell(40, 10, "Category", border=1, ln=True, fill=True)
+
+    pdf.set_font("Arial", size=12)
     for index, row in df.iterrows():
-        line = f"{row['Date']} - {row['Task']} - {row['Time (min)']} min - Mood: {row['Mood (1-5)']} - {row['Category']}"
-        pdf.cell(200, 10, txt=line, ln=True)
+        date_str = pd.to_datetime(row["Date"]).strftime("%Y-%m-%d")
+        pdf.cell(40, 10, date_str, border=1)
+        pdf.cell(50, 10, str(row["Task"]), border=1)
+        pdf.cell(30, 10, str(row["Time (min)"]), border=1)
+        pdf.cell(30, 10, str(row["Mood (1-5)"]), border=1)
+        pdf.cell(40, 10, str(row["Category"]), border=1, ln=True)
 
     report_path = "data/productivity_report.pdf"
     pdf.output(report_path)
@@ -75,7 +89,7 @@ if submitted:
     st.success("Entry added successfully!")
 
 # Display data
-data["Date"] = pd.to_datetime(data["Date"])
+data["Date"] = pd.to_datetime(data["Date"]).dt.date
 st.subheader("📅 Logged Tasks")
 st.dataframe(data.sort_values("Date", ascending=False))
 
