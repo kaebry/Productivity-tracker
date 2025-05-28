@@ -104,21 +104,44 @@ if not data.empty:
                 file_name="productivity_report.pdf",
             )
 
+# Filters
+st.subheader("🔍 Filter Data")
+with st.expander("Apply Filters"):
+    col1, col2 = st.columns(2)
+
+    with col1:
+        start_date = st.date_input("Start Date", value=data["Date"].min())
+    with col2:
+        end_date = st.date_input("End Date", value=data["Date"].max())
+
+    selected_categories = st.multiselect(
+        "Select Categories",
+        options=data["Category"].unique(),
+        default=list(data["Category"].unique()),
+    )
+
+# Apply filters
+filtered_data = data[
+    (data["Date"] >= start_date)
+    & (data["Date"] <= end_date)
+    & (data["Category"].isin(selected_categories))
+]
+
 # Visualizations
 st.subheader("📈 Productivity Summary")
 if not data.empty:
     # Time spent per day
-    daily_time = get_daily_time(data)
+    daily_time = get_daily_time(filtered_data)
     st.markdown("**Total Time Spent Per Day**")
     st.line_chart(daily_time)
 
     # Mood trend
-    mood_trend = get_mood_trend(data)
+    mood_trend = get_mood_trend(filtered_data)
     st.markdown("**Average Mood Per Day**")
     st.line_chart(mood_trend)
 
     # Time per category
-    category_data = get_category_breakdown(data)
+    category_data = get_category_breakdown(filtered_data)
     st.markdown("**Time Spent by Category**")
     fig = plot_category_bar(category_data)
     st.pyplot(fig)
