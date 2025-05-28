@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from utils.analytics import get_daily_time, get_mood_trend, get_category_breakdown
 from utils.visualizer import plot_category_bar
 
+from fpdf import FPDF
 
 # Constants
 data_file = "data/tasks.csv"
@@ -26,6 +27,22 @@ def load_data():
 # Save data to CSV
 def save_data(df):
     df.to_csv(data_file, index=False)
+
+
+# Export to PDF
+def export_to_pdf(df):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt="Personal Productivity Report", ln=True, align="C")
+
+    for index, row in df.iterrows():
+        line = f"{row['Date']} - {row['Task']} - {row['Time (min)']} min - Mood: {row['Mood (1-5)']} - {row['Category']}"
+        pdf.cell(200, 10, txt=line, ln=True)
+
+    report_path = "data/productivity_report.pdf"
+    pdf.output(report_path)
+    return report_path
 
 
 # App Title
@@ -61,6 +78,17 @@ if submitted:
 data["Date"] = pd.to_datetime(data["Date"])
 st.subheader("📅 Logged Tasks")
 st.dataframe(data.sort_values("Date", ascending=False))
+
+# PDF Export Button
+if not data.empty:
+    if st.button("📄 Export to PDF"):
+        path = export_to_pdf(data.sort_values("Date"))
+        with open(path, "rb") as file:
+            st.download_button(
+                label="Download PDF Report",
+                data=file,
+                file_name="productivity_report.pdf",
+            )
 
 # Visualizations
 st.subheader("📈 Productivity Summary")
