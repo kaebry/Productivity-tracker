@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import os
 from datetime import datetime
-import matplotlib.pyplot as plt
 
 from utils.analytics import get_daily_time, get_mood_trend, get_category_breakdown
 from utils.visualizer import plot_category_bar
